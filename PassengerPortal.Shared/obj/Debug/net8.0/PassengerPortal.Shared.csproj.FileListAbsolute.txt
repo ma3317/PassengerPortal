@@ -1,0 +1,11 @@
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/bin/Debug/net8.0/PassengerPortal.Shared.deps.json
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/bin/Debug/net8.0/PassengerPortal.Shared.dll
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/bin/Debug/net8.0/PassengerPortal.Shared.pdb
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.AssemblyInfoInputs.cache
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.AssemblyInfo.cs
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.csproj.CoreCompileInputs.cache
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.dll
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/refint/PassengerPortal.Shared.dll
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.pdb
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/ref/PassengerPortal.Shared.dll

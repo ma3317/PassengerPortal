@@ -1,0 +1,6 @@
+@PassengerPortal.Server_HostAddress = http://localhost:5297
+
+GET {{PassengerPortal.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

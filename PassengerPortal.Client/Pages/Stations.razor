@@ -1,0 +1,31 @@
+@page "/stations"
+@inject HttpClient Http
+@using PassengerPortal.Shared.Models
+
+<h3>Lista Stacji</h3>
+@code {
+    private List<Station>? stations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("?????");
+        stations = await Http.GetFromJsonAsync<List<Station>>("https://localhost:7075/api/stations");
+        Console.WriteLine(stations[0]);
+    }
+}
+
+@if (stations == null)
+{
+<p>Ładowanie...</p>
+}
+else
+{
+<ul>
+    @foreach (var station in stations)
+    {
+    <li>@station.Name (@station.Location)</li>
+    }
+</ul>
+}
+
+

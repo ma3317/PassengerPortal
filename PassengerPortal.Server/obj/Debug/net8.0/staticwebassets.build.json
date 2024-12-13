@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "2Fu2vTeJAvH3e1/LhWycMoBkWoACHvw0nwrYk7wBQww=",
+  "Source": "PassengerPortal.Server",
+  "BasePath": "_content/PassengerPortal.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "PassengerPortal.Server/wwwroot",
+      "Source": "PassengerPortal.Server",
+      "ContentRoot": "/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Server/wwwroot/",
+      "BasePath": "_content/PassengerPortal.Server",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
