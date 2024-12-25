@@ -68,6 +68,8 @@ using (var scope = app.Services.CreateScope())
 
 
 app.Run();*/
+
+using System.Text.Json.Serialization;
 using Route = PassengerPortal.Shared.Models.Route;
 using Microsoft.EntityFrameworkCore;
 using PassengerPortal.Server.Data;
@@ -82,10 +84,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.MaxDepth = 4; // Ustaw maksymalną głębokość
+        // Ignoruj cykle referencyjne
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        // Zwiększ maksymalną głębokość serializacji
+        options.JsonSerializerOptions.MaxDepth = 32; // Domyślnie 32, ale może być inne w Twojej konfiguracji
+        options.JsonSerializerOptions.WriteIndented = true; // Opcjonalne, dla czytelniejszego JSON
     });
 
 

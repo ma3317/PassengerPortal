@@ -55,7 +55,9 @@ namespace PassengerPortal.Server.Services
                 if (currentStationId == end.Id)
                 {
                     Console.WriteLine("Znaleziono stację docelową!");
-                    var connection = ReconstructConnection(previousStation, previousRoute, start.Id, end.Id);
+                    //var connection = ReconstructConnection(previousStation, previousRoute, start.Id, end.Id);
+                    var connection = ReconstructConnection(previousStation, previousRoute, earliestArrival, start.Id, end.Id);
+
                     return new List<Connection> { connection };
                 }
 
@@ -147,7 +149,7 @@ namespace PassengerPortal.Server.Services
         }
 
         // Rekonstrukcja znalezionego połączenia na podstawie słowników `previousStation` i `previousRoute`.
-        private Connection ReconstructConnection(Dictionary<int, int> previousStation, Dictionary<int, Route> previousRoute, int startId, int endId)
+        /*private Connection ReconstructConnection(Dictionary<int, int> previousStation, Dictionary<int, Route> previousRoute, int startId, int endId)
         {
             Console.WriteLine("Rozpoczynam rekonstrukcję połączenia...");
             List<Route> routes = new List<Route>();
@@ -170,6 +172,40 @@ namespace PassengerPortal.Server.Services
             routes.Reverse();
             Console.WriteLine("Rekonstrukcja zakończona.");
             return new Connection { Routes = routes };
+        }*/
+        private Connection ReconstructConnection(Dictionary<int, int> previousStation, Dictionary<int, Route> previousRoute, Dictionary<int, DateTime> earliestArrival, int startId, int endId)
+        {
+            Console.WriteLine("Rozpoczynam rekonstrukcję połączenia...");
+            List<Route> routes = new List<Route>();
+            int current = endId;
+            DateTime arrivalTime = earliestArrival[endId];
+
+            while (current != startId)
+            {
+                if (!previousStation.ContainsKey(current))
+                {
+                    Console.WriteLine($"Nie można znaleźć poprzedniej stacji dla {current}");
+                    break;
+                }
+
+                var route = previousRoute[current];
+                var previousStationId = previousStation[current];
+                DateTime departureTime = arrivalTime - route.Duration;
+
+                // Ustawienie DepartureDateTime i ArrivalDateTime
+                route.DepartureDateTime = departureTime;
+                route.ArrivalDateTime = arrivalTime;
+
+                routes.Add(route);
+                arrivalTime = departureTime;
+                current = previousStationId;
+            }
+
+            routes.Reverse();
+            Console.WriteLine("Rekonstrukcja zakończona.");
+            return new Connection { Routes = routes };
         }
+
+
     }
 }
