@@ -1,0 +1,106 @@
+@page "/search-connections"
+@using PassengerPortal.Shared.Models
+@inject PassengerPortal.Client.Services.ApiService ApiService
+
+<h3>Wyszukiwanie Połączeń</h3>
+
+@if (stations == null)
+{
+<p><em>Ładowanie stacji...</em></p>
+}
+else
+{
+<EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="startStation" class="form-label">Stacja Początkowa</label>
+        <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
+            <option value="">-- Wybierz stację --</option>
+            @foreach (var station in stations)
+            {
+            <option value="@station.Id">@station.Name (@station.City)</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label for="endStation" class="form-label">Stacja Końcowa</label>
+        <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
+            <option value="">-- Wybierz stację --</option>
+            @foreach (var station in stations)
+            {
+            <option value="@station.Id">@station.Name (@station.City)</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label for="departureTime" class="form-label">Czas Odjazdu</label>
+        <InputDate id="departureTime" class="form-control" @bind-Value="searchModel.DepartureTime" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Szukaj</button>
+</EditForm>
+
+@if (connections != null)
+{
+<h4 class="mt-4">Wyniki Wyszukiwania</h4>
+@if (connections.Count == 0)
+{
+<p>Brak dostępnych połączeń.</p>
+}
+else
+{
+<table class="table">
+    <thead>
+    <tr>
+        <th>Trasa</th>
+        <th>Całkowity Czas</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var connection in connections)
+    {
+    <tr>
+        <td>
+            @foreach (var route in connection.Routes)
+            {
+            <span>@route.StartStation.Name -> @route.EndStation.Name (@route.Duration.ToString(@"hh\:mm"))</span><br />
+            }
+        </td>
+        <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
+    </tr>
+    }
+    </tbody>
+</table>
+}
+}
+}
+
+@code {
+private List<Station> stations;
+private SearchModel searchModel = new SearchModel
+{
+DepartureTime = DateTime.Now
+};
+private List<Connection> connections;
+
+protected override async Task OnInitializedAsync()
+{
+stations = await ApiService.GetStationsAsync();
+}
+
+private async Task HandleValidSubmit()
+{
+connections = (await ApiService.SearchConnectionsAsync(searchModel.StartStationId, searchModel.EndStationId, searchModel.DepartureTime)).ToList();
+}
+
+public class SearchModel
+{
+public int StartStationId { get; set; }
+public int EndStationId { get; set; }
+public DateTime DepartureTime { get; set; }
+}
+}

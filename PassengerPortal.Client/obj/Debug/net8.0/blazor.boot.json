@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "PassengerPortal.Client",
   "resources": {
-    "hash": "sha256-nP9NYA+MGW+djhpiRETPCp8iZNNuAPaF93xWcWOsJ/U=",
+    "hash": "sha256-f1CwQ2phoF3lW4mC28mKsidLrBE4ue2ivwMxVWxeETg=",
     "jsModuleNative": {
       "dotnet.native.8.0.11.mrvy6hatsu.js": "sha256-VdKq87/z5NIxZKmuM+fv38XF+RcEb/bg3jVBwQSfwP4="
     },
@@ -35,11 +35,17 @@
       "Microsoft.Extensions.FileSystemGlobbing.wasm": "sha256-AnWUKd0qJ8ZNKkRC0AFK2cjjszB7reXiP+bXdIi8bic=",
       "Microsoft.Extensions.Logging.wasm": "sha256-pa0M3exxNvk6g5anUwlaPC99Afawsi1GZvJeU1q/ZGM=",
       "Microsoft.Extensions.Logging.Abstractions.wasm": "sha256-glWux6/5FFNJxVrbRPQ/PhLriEkSd3TllLfjmvZbpKw=",
+      "Microsoft.Extensions.Logging.Configuration.wasm": "sha256-sUvSBKFxhlP/Jogl+j8ktKbufGPDncA+qRTBjM/0Vsg=",
+      "Microsoft.Extensions.Logging.Console.wasm": "sha256-hpgoJ/87wMWzvUzycEz9QRLkFknjCfhkjzgL5/1/zhg=",
       "Microsoft.Extensions.Options.wasm": "sha256-5/m+yVFGRuY+N4jQnD+QETKH0AfhAsnVze5dJ5ogIVM=",
+      "Microsoft.Extensions.Options.ConfigurationExtensions.wasm": "sha256-mFg74e14I5TrlTTf2GdiTpsEoDXtIt+GI1T1u0znjwc=",
       "Microsoft.Extensions.Primitives.wasm": "sha256-pVrYOTfjb2ITls3LKIByW1t8jwOAWFhmkIVDewtJ1GE=",
       "Microsoft.JSInterop.wasm": "sha256-5cqIyKsdUZ1dHGvNaW58/lWROJnvOdig8Ja6mv1p3Qg=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-+wpzFJcg/CuYhygrH1ovEDlvYbxiG8U68YLvihiZM34=",
+      "System.Diagnostics.DiagnosticSource.wasm": "sha256-i5WI/tU+K9RiaDWyaCM1zb0kAxnOfYBfzNHMGkETKnQ=",
       "System.IO.Pipelines.wasm": "sha256-JqVBy6SV+3qk+IK3VJiyIDt9CsVk6b1/ytTXmrI4mTM=",
+      "System.Text.Encodings.Web.wasm": "sha256-o6np2+GPPc37Oc+mlv5vfaZQsNjObyfSkp6KL0Tg7pk=",
+      "System.Text.Json.wasm": "sha256-7bgDcdOvxXUt2GWh6n41JbhjOIYMYMR+xdym3/AeKMg=",
       "Microsoft.CSharp.wasm": "sha256-Uadhh9ejd0eod083HcpwnJ3OpcrMgcP88Vyftm5/ZkA=",
       "Microsoft.VisualBasic.Core.wasm": "sha256-SBz1WgEN4UGzdrCKxLUaNAY5S7cs6RLZTuFDdPkMS6g=",
       "Microsoft.VisualBasic.wasm": "sha256-GWWO9YY5BhSXDF/4kKQ6mS6AUpTQDRYxh8SJehKh8YA=",
@@ -66,7 +72,6 @@
       "System.Data.wasm": "sha256-s2lgjSzeh+XYG6Qh4YZxbrOam9fYsNc04ynAkB4R42k=",
       "System.Diagnostics.Contracts.wasm": "sha256-vrCM+vLlfyetUANwGHfQE7A/f2MMoPTZUXKDP+qGNbQ=",
       "System.Diagnostics.Debug.wasm": "sha256-349ZnEbmfYDd+OC/k6vTM7w+qL80X+LVtinJ8o9bVps=",
-      "System.Diagnostics.DiagnosticSource.wasm": "sha256-i5WI/tU+K9RiaDWyaCM1zb0kAxnOfYBfzNHMGkETKnQ=",
       "System.Diagnostics.FileVersionInfo.wasm": "sha256-dH/P3dAK/Uq8H6Z9nno+YOSoVIRQR702arxn+YvB3cc=",
       "System.Diagnostics.Process.wasm": "sha256-hJfDlOsDX0I1JRN8vsD8T67w0XSR9BuTMEMvSMpz2K4=",
       "System.Diagnostics.StackTrace.wasm": "sha256-tDYqzonSg+uRPKN0ZQcFYWSxBjQJwgEO8KJsLFe1RUg=",
@@ -175,8 +180,6 @@
       "System.Text.Encoding.CodePages.wasm": "sha256-RKxD0JxpDE+wVM9XgRJTWJOrO3cY5j+sjB87rDKoBHk=",
       "System.Text.Encoding.Extensions.wasm": "sha256-sckRBWbY0/x1IP5VajERSulMTnbc1eBrmyWI0161mGc=",
       "System.Text.Encoding.wasm": "sha256-Wsq2uK1kbcS5Rx8OQ4hqnSkFld0bWvs22/CKxZtaG3o=",
-      "System.Text.Encodings.Web.wasm": "sha256-o6np2+GPPc37Oc+mlv5vfaZQsNjObyfSkp6KL0Tg7pk=",
-      "System.Text.Json.wasm": "sha256-7bgDcdOvxXUt2GWh6n41JbhjOIYMYMR+xdym3/AeKMg=",
       "System.Text.RegularExpressions.wasm": "sha256-q6LKJmlxogEJNqJwZNeoM4FCyaWKA7uqzD9VYQY06nI=",
       "System.Threading.Channels.wasm": "sha256-dzLvqISJviasdstLg+JLYIe2FG3fupFL+HFtypxCYqs=",
       "System.Threading.Overlapped.wasm": "sha256-WCgszWOyUNlmdmjEyCawrYTxqODM1Br7TK5CHRuHZuQ=",
@@ -208,12 +211,12 @@
       "mscorlib.wasm": "sha256-04e4k5XU8HWGB/dq/2+j84xzzGPflTs0IYWI0OxogVc=",
       "netstandard.wasm": "sha256-gnGZURPnoSmjXuYNCOJi5tt8qn2LRImWgue1Ru3/TDQ=",
       "System.Private.CoreLib.wasm": "sha256-6w3jYr0arcp8jnt4aeqh+AmqrLA6q7jl9rQYAwLzE0M=",
-      "PassengerPortal.Shared.wasm": "sha256-C/tcqLcPIjz/rndB9ZxKvKahNamlyZRV8iMv6meXRn4=",
-      "PassengerPortal.Client.wasm": "sha256-BweTAMonOpbdxJvEd1scM0ymOmhG5e21HijBu90BGc4="
+      "PassengerPortal.Shared.wasm": "sha256-22cwqY2GOiPJfYPqHXEA6XNI7R9N6IpNxx6jkoHaIi8=",
+      "PassengerPortal.Client.wasm": "sha256-K71XsDNTSH2VUEFOcR8ld4DFfrQKHbJKXSxu8hKW5p8="
     },
     "pdb": {
-      "PassengerPortal.Shared.pdb": "sha256-lPce3wx5Iz4kqaEDjq/m4yohOw/cudy/zHJxcDldpS0=",
-      "PassengerPortal.Client.pdb": "sha256-WHYweJRlGdQ112JVaGWJKvL2Qw2kgEPfjzkNzsvEzFw="
+      "PassengerPortal.Shared.pdb": "sha256-meCJuXcCsleDJIinzhuTniw2Ig/DF3EZiER27pqsYTA=",
+      "PassengerPortal.Client.pdb": "sha256-H3UgW990OWn5zRR+6d/tfrgxxesIK458Yv9b9ymweRI="
     }
   },
   "cacheBootResources": true,

@@ -9,3 +9,4 @@
 /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/refint/PassengerPortal.Shared.dll
 /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.pdb
 /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/ref/PassengerPortal.Shared.dll
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Shared/obj/Debug/net8.0/PassengerPortal.Shared.sourcelink.json

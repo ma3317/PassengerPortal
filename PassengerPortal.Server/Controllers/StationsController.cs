@@ -1,25 +1,45 @@
 using Microsoft.AspNetCore.Mvc;
-using PassengerPortal.Server.Data;
+using PassengerPortal.Shared.Interfaces;
 using PassengerPortal.Shared.Models;
+using System.Collections.Generic;
 
 namespace PassengerPortal.Server.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class StationsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IStationRepository _stationRepo;
 
-        public StationsController(ApplicationDbContext context)
+        public StationsController(IStationRepository stationRepo)
         {
-            _context = context;
+            _stationRepo = stationRepo;
         }
 
         [HttpGet]
-        public IActionResult GetStations()
+        public ActionResult<IEnumerable<Station>> GetAll()
         {
-            var stations = _context.Stations.ToList();
-            return Ok(stations);
+            return Ok(_stationRepo.GetAll());
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Station> GetById(int id)
+        {
+            var station = _stationRepo.GetById(id);
+            if (station == null)
+                return NotFound();
+
+            return Ok(station);
+        }
+
+        [HttpGet("byname/{name}")]
+        public ActionResult<Station> GetByName(string name)
+        {
+            var station = _stationRepo.GetByName(name);
+            if (station == null)
+                return NotFound();
+
+            return Ok(station);
         }
     }
 }

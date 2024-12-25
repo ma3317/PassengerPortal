@@ -1,10 +1,7 @@
 is_global = true
 build_property.EnableAotAnalyzer = 
 build_property.EnableSingleFileAnalyzer = 
-build_property.EnableSingleFileAnalyzer = 
-build_property.EnableTrimAnalyzer = true
-build_property.EnableTrimAnalyzer = true
-build_property.IncludeAllContentForSelfExtract = 
+build_property.EnableTrimAnalyzer = false
 build_property.IncludeAllContentForSelfExtract = 
 build_property.TargetFramework = net8.0
 build_property.TargetPlatformMinVersion = 
@@ -12,11 +9,14 @@ build_property.UsingMicrosoftNETSdkWeb =
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = false
 build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = browser
 build_property.RootNamespace = PassengerPortal.Client
 build_property.RootNamespace = PassengerPortal.Client
 build_property.ProjectDir = /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/
-build_property.RazorLangVersion = 6.0
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
 build_property.MSBuildProjectDirectory = /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client
@@ -26,16 +26,24 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ291bnRlci5yYXpvcg==
+[/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/AdminPanel.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW5QYW5lbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/SearchConnections.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2VhcmNoQ29ubmVjdGlvbnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/Stations.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3RhdGlvbnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/UserPanel.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlclBhbmVsLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Client/Pages/Weather.razor]

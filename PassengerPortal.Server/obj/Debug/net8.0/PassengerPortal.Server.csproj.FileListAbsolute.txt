@@ -136,3 +136,4 @@
 /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Server/obj/Debug/net8.0/PassengerPortal.Server.genruntimeconfig.cache
 /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Server/obj/Debug/net8.0/ref/PassengerPortal.Server.dll
 /Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Server/bin/Debug/net8.0/PassengerPortal.Server.staticwebassets.runtime.json
+/Users/korneliarozpara/Downloads/passenger-portal/PassengerPortal.Server/obj/Debug/net8.0/PassengerPortal.Server.sourcelink.json
