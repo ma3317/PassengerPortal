@@ -21,14 +21,14 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Rejestracja HttpClient z adresem backendu
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:5300/") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7075/") });
 
 // Rejestracja ApiService
 builder.Services.AddScoped<ApiService>();
 
 // Dodanie logowania
-builder.Logging.SetMinimumLevel(LogLevel.Information);
-builder.Logging.AddConsole();
+//builder.Logging.SetMinimumLevel(LogLevel.Information);
+//builder.Logging.AddConsole();
 
 await builder.Build().RunAsync();
 

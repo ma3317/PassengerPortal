@@ -4,103 +4,139 @@
 
 <h3>Wyszukiwanie Połączeń</h3>
 
-@if (stations == null)
+@if (stations == null && string.IsNullOrEmpty(errorMessage))
 {
-<p><em>Ładowanie stacji...</em></p>
+    <p><em>Ładowanie stacji...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
 }
 else
 {
-<EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div class="mb-3">
-        <label for="startStation" class="form-label">Stacja Początkowa</label>
-        <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
-            <option value="">-- Wybierz stację --</option>
-            @foreach (var station in stations)
-            {
-            <option value="@station.Id">@station.Name (@station.City)</option>
-            }
-        </InputSelect>
-    </div>
+        <div class="mb-3">
+            <label for="startStation" class="form-label">Stacja Początkowa</label>
+            <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
+                <option value="">-- Wybierz stację --</option>
+                @foreach (var station in stations)
+                {
+                    <option value="@station.Id">@station.Name (@station.City)</option>
+                }
+            </InputSelect>
+        </div>
 
-    <div class="mb-3">
-        <label for="endStation" class="form-label">Stacja Końcowa</label>
-        <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
-            <option value="">-- Wybierz stację --</option>
-            @foreach (var station in stations)
-            {
-            <option value="@station.Id">@station.Name (@station.City)</option>
-            }
-        </InputSelect>
-    </div>
+        <div class="mb-3">
+            <label for="endStation" class="form-label">Stacja Końcowa</label>
+            <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
+                <option value="">-- Wybierz stację --</option>
+                @foreach (var station in stations)
+                {
+                    <option value="@station.Id">@station.Name (@station.City)</option>
+                }
+            </InputSelect>
+        </div>
 
-    <div class="mb-3">
-        <label for="departureTime" class="form-label">Czas Odjazdu</label>
-        <InputDate id="departureTime" class="form-control" @bind-Value="searchModel.DepartureTime" />
-    </div>
+        <div class="mb-3">
+            <label for="departureTime" class="form-label">Czas Odjazdu</label>
+            <InputDate id="departureTime" class="form-control" @bind-Value="searchModel.DepartureTime" />
+        </div>
 
-    <button type="submit" class="btn btn-primary">Szukaj</button>
-</EditForm>
+        <button type="submit" class="btn btn-primary">Szukaj</button>
+    </EditForm>
 
-@if (connections != null)
-{
-<h4 class="mt-4">Wyniki Wyszukiwania</h4>
-@if (connections.Count == 0)
-{
-<p>Brak dostępnych połączeń.</p>
-}
-else
-{
-<table class="table">
-    <thead>
-    <tr>
-        <th>Trasa</th>
-        <th>Całkowity Czas</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var connection in connections)
+    @if (connections != null)
     {
-    <tr>
-        <td>
-            @foreach (var route in connection.Routes)
-            {
-            <span>@route.StartStation.Name -> @route.EndStation.Name (@route.Duration.ToString(@"hh\:mm"))</span><br />
-            }
-        </td>
-        <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
-    </tr>
+        <h4 class="mt-4">Wyniki Wyszukiwania</h4>
+        @if (connections.Count == 0)
+        {
+            <p>Brak dostępnych połączeń.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Trasa</th>
+                        <th>Całkowity Czas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var connection in connections)
+                    {
+                        <tr>
+                            <td>
+                                @foreach (var route in connection.Routes)
+                                {
+                                    <span>
+                                        @route.StartStation.Name -> @route.EndStation.Name
+                                        (@route.Duration.ToString(@"hh\:mm"))
+                                    </span><br />
+                                }
+                            </td>
+                            <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     }
-    </tbody>
-</table>
-}
-}
 }
 
 @code {
-private List<Station> stations;
-private SearchModel searchModel = new SearchModel
-{
-DepartureTime = DateTime.Now
-};
-private List<Connection> connections;
+    private List<Station> stations;
+    private SearchModel searchModel = new SearchModel
+    {
+        DepartureTime = DateTime.Now
+    };
+    private List<Connection> connections;
+    private string errorMessage;
 
-protected override async Task OnInitializedAsync()
-{
-stations = await ApiService.GetStationsAsync();
-}
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("Pobieranie stacji...");
+            stations = await ApiService.GetStationsAsync();
+            if (stations != null && stations.Any())
+            {
+                Console.WriteLine($"Pierwsza stacja: {stations[0].Name}");
+            }
+            else
+            {
+                Console.WriteLine("Brak stacji do wyświetlenia.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Błąd podczas pobierania stacji: {ex.Message}");
+            errorMessage = "Wystąpił błąd podczas ładowania stacji. Spróbuj ponownie później.";
+        }
+    }
 
-private async Task HandleValidSubmit()
-{
-connections = (await ApiService.SearchConnectionsAsync(searchModel.StartStationId, searchModel.EndStationId, searchModel.DepartureTime)).ToList();
-}
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            connections = await ApiService.SearchConnectionsAsync(
+                searchModel.StartStationId,
+                searchModel.EndStationId,
+                searchModel.DepartureTime);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Błąd podczas wyszukiwania połączeń: {ex.Message}");
+            errorMessage = "Wystąpił błąd podczas wyszukiwania połączeń. Spróbuj ponownie później.";
+        }
+    }
 
-public class SearchModel
-{
-public int StartStationId { get; set; }
-public int EndStationId { get; set; }
-public DateTime DepartureTime { get; set; }
-}
+    public class SearchModel
+    {
+        public int StartStationId { get; set; }
+        public int EndStationId { get; set; }
+        public DateTime DepartureTime { get; set; }
+    }
 }

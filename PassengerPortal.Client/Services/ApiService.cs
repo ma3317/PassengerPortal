@@ -1,9 +1,5 @@
-using PassengerPortal.Shared.Models; // Zamiast PassengerPortal.Client.Models
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using PassengerPortal.Shared.Models; // Zakładam, że tam masz Connection, Station, itp.
 
 namespace PassengerPortal.Client.Services
 {
@@ -15,16 +11,24 @@ namespace PassengerPortal.Client.Services
         {
             _httpClient = httpClient;
         }
-        
+
         public async Task<List<Station>> GetStationsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Station>>("api/stations");
+            var response = await _httpClient.GetAsync("api/stations");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<Station>>();
         }
-        
+
         public async Task<List<Connection>> SearchConnectionsAsync(int startStationId, int endStationId, DateTime departureTime)
         {
-            var url = $"api/connections/search?startStationId={startStationId}&endStationId={endStationId}&departureTime={departureTime:o}";
-            return await _httpClient.GetFromJsonAsync<List<Connection>>(url);
+            // Format daty w ISO 8601, np. 2024-12-28T09:00:00
+            var departureTimeFormatted = departureTime.ToString("o");
+
+            var query = $"api/connections/search?startStationId={startStationId}&endStationId={endStationId}&departureTime={departureTimeFormatted}";
+
+            var response = await _httpClient.GetAsync(query);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<Connection>>();
         }
     }
 }

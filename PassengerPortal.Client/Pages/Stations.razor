@@ -1,4 +1,4 @@
-@*@page "/stations"
+@page "/stations"
 @inject HttpClient Http
 @using PassengerPortal.Shared.Models
 
@@ -23,9 +23,9 @@ else
 <ul>
     @foreach (var station in stations)
     {
-    <li>@station.Name (@station.Location)</li>
+    <li>@station.Name (@station.City)</li>
     }
 </ul>
-}*@
+}
 
 
