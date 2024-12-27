@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "PassengerPortal.Client",
   "resources": {
-    "hash": "sha256-xqIguxU8NUEie+pQjIwmWXpLRW8S6CDWCaUEAEXypa8=",
+    "hash": "sha256-3cIIwYSXTpfBthaA7LOI1MXPuaqMkPSGVoLPdYlmwlY=",
     "jsModuleNative": {
       "dotnet.native.8.0.11.mrvy6hatsu.js": "sha256-VdKq87/z5NIxZKmuM+fv38XF+RcEb/bg3jVBwQSfwP4="
     },
@@ -211,12 +211,12 @@
       "mscorlib.wasm": "sha256-04e4k5XU8HWGB/dq/2+j84xzzGPflTs0IYWI0OxogVc=",
       "netstandard.wasm": "sha256-gnGZURPnoSmjXuYNCOJi5tt8qn2LRImWgue1Ru3/TDQ=",
       "System.Private.CoreLib.wasm": "sha256-6w3jYr0arcp8jnt4aeqh+AmqrLA6q7jl9rQYAwLzE0M=",
-      "PassengerPortal.Shared.wasm": "sha256-bCJpwoz33IuHjqnJhaZM0EV+OEaWDOpbKqLHtTuA3HA=",
-      "PassengerPortal.Client.wasm": "sha256-eKi/HTICGhpfTc+dnGPl9hQw4cPu6bEypVISB1RF2yk="
+      "PassengerPortal.Shared.wasm": "sha256-7uYLtwDXchEEcreZaPDx/G54kR0C2DUE4Idh0aOcaRI=",
+      "PassengerPortal.Client.wasm": "sha256-t18y8SbsHlSM7RMIwYMJ/BNShMj7lt7yCnLMzZFGChE="
     },
     "pdb": {
-      "PassengerPortal.Shared.pdb": "sha256-WME9myj/ahj4ziZY1zdJcc7EklqNKY+KXmRy1UYG6pc=",
-      "PassengerPortal.Client.pdb": "sha256-r0eIdipshxRgeL1mFStj+ZgwQDK337gh4fBy0oCb7Ss="
+      "PassengerPortal.Shared.pdb": "sha256-g7U9Bmw9C8bZQkEaKNpkxK8xPYGBeLuXXdil6A9nQAc=",
+      "PassengerPortal.Client.pdb": "sha256-sfh9vco6yT3BDIMO97sYkikNoDcZiK37236mzTRrQR4="
     }
   },
   "cacheBootResources": true,
