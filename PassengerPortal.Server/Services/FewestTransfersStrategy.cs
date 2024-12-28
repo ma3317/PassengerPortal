@@ -1,114 +1,261 @@
 using PassengerPortal.Shared.Interfaces;
 using PassengerPortal.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Route = PassengerPortal.Shared.Models.Route;
+// Wyszukuje 5 najbliższych połączeń w tym w kolejnych dniach 
+
 
 namespace PassengerPortal.Server.Services
 {
-    public class FewestTransfersStrategy : ISearchStrategy
+    public class FewestConnectionStrategy : ISearchStrategy
     {
         private readonly IRouteRepository _routeRepo;
         private readonly IStationRepository _stationRepo;
 
-        public FewestTransfersStrategy(IRouteRepository routeRepo, IStationRepository stationRepo)
+        public FewestConnectionStrategy(IRouteRepository routeRepo, IStationRepository stationRepo)
         {
             _routeRepo = routeRepo;
             _stationRepo = stationRepo;
         }
 
-        public IEnumerable<Connection> SearchConnections(Station start, Station end, DateTime departureTime)
+        /// <summary>
+        /// Wyszukuje do maxResults (domyślnie 5) najszybszych połączeń (z przesiadkami),
+        /// zaczynając nie wcześniej niż departureTime.
+        /// </summary>
+        public IEnumerable<Connection> SearchConnections(
+            Station start,
+            Station end,
+            DateTime departureTime,
+            int maxResults = 5)
         {
-            // BFS: chcemy zminimalizować liczbę przesiadek.
-            // W kolejce trzymamy stację, bieżący czas, oraz listę dotychczasowych tras (Routes).
-            var queue = new Queue<(Station currentStation, DateTime currentTime, List<Route> currentRoute)>();
-            var visited = new HashSet<int>();
+            Console.WriteLine($"[SearchConnections] start={start.Name}, end={end.Name}, departureTime={departureTime}, maxResults={maxResults}");
 
-            // Inicjalizacja
-            queue.Enqueue((start, departureTime, new List<Route>()));
-            visited.Add(start.Id);
+            var foundConnections = new List<Connection>();
+            DateTime currentDepartureTime = departureTime;
 
-            while (queue.Count > 0)
+            // Pętla, aby znaleźć do maxResults połączeń
+            while (foundConnections.Count < maxResults)
             {
-                var (currentStation, currentTime, currentRoute) = queue.Dequeue();
+                var connection = FindConnection(start, end, currentDepartureTime);
 
-                // Jeśli dotarliśmy do stacji docelowej, zwracamy połączenie (1 wynik).
-                if (currentStation.Id == end.Id)
+                if (connection == null)
                 {
-                    return new List<Connection>
-                    {
-                        new Connection { Routes = currentRoute }
-                    };
+                    Console.WriteLine("[SearchConnections] Nie znaleziono więcej połączeń.");
+                    break;
                 }
 
-                // Pobieramy wszystkie trasy wychodzące ze stacji 'currentStation'.
-                var outgoingRoutes = _routeRepo.GetRoutesFromStation(currentStation.Id);
+                // Sprawdzenie unikalności połączenia na podstawie najwcześniejszego odjazdu
+                var earliestDeparture = connection.Routes.Min(r => r.DepartureDateTime);
+                bool alreadyExists = foundConnections.Any(c =>
+                    c.Routes.Min(rr => rr.DepartureDateTime) == earliestDeparture);
+
+                if (!alreadyExists)
+                {
+                    foundConnections.Add(connection);
+                    Console.WriteLine($"[SearchConnections] Dodano połączenie z {earliestDeparture}");
+
+                    // Aktualizacja departureTime, aby znaleźć kolejne połączenie
+                    currentDepartureTime = earliestDeparture.AddMinutes(1);
+                }
+                else
+                {
+                    Console.WriteLine($"[SearchConnections] Połączenie z {earliestDeparture} już istnieje, pomijam.");
+                    // Jeśli połączenie jest duplikatem, zwiększamy departureTime
+                    currentDepartureTime = earliestDeparture.AddMinutes(1);
+                }
+            }
+
+            // Sortowanie znalezionych połączeń według najwcześniejszego odjazdu
+            var sortedConnections = foundConnections
+                .OrderBy(c => c.Routes.Min(r => r.DepartureDateTime))
+                .Take(maxResults)
+                .ToList();
+
+            Console.WriteLine($"[SearchConnections] Zwracam {sortedConnections.Count} połączeń.");
+            return sortedConnections;
+        }
+
+        /// <summary>
+        /// Metoda BFS/Dijkstra, która znajduje jedno najwcześniejsze połączenie (z przesiadkami) 
+        /// od stacji 'start' do 'end', zaczynając w 'departureTime'.
+        /// </summary>
+        private Connection? FindConnection(Station start, Station end, DateTime departureTime)
+        {
+            Console.WriteLine($"[FindConnection] start={start.Name}, end={end.Name}, departureTime={departureTime}");
+
+            var earliestArrival = new Dictionary<int, DateTime>();
+            var previousStation = new Dictionary<int, int>();
+            var previousRoute = new Dictionary<int, Route>();
+
+            // Inicjalizacja czasów przybycia
+            foreach (var station in _stationRepo.GetAll())
+            {
+                earliestArrival[station.Id] = DateTime.MaxValue;
+                Console.WriteLine($"[FindConnection] Inicjalizacja: Stacja={station.Name}, earliestArrival={earliestArrival[station.Id]}");
+            }
+
+            earliestArrival[start.Id] = departureTime;
+
+            // Kolejka priorytetowa (klucz: czas przybycia)
+            var pq = new PriorityQueue<(int stationId, DateTime arrivalTime), DateTime>();
+            pq.Enqueue((start.Id, departureTime), departureTime);
+
+            while (pq.Count > 0)
+            {
+                var (currentStationId, currentArrival) = pq.Dequeue();
+                Console.WriteLine($"[FindConnection] Rozpatrywana stacja: {currentStationId}, czas przybycia: {currentArrival}");
+
+                // Jeśli dotarliśmy do stacji docelowej, rekonstruujemy połączenie
+                if (currentStationId == end.Id)
+                {
+                    Console.WriteLine("[FindConnection] Dotarliśmy do stacji docelowej, rekonstruowanie połączenia...");
+                    var connection = ReconstructConnection(previousStation, previousRoute, earliestArrival, start.Id, end.Id);
+                    return connection;
+                }
+
+                // Ignorowanie stacji, jeśli znaleziono szybszy sposób dotarcia do niej
+                if (currentArrival > earliestArrival[currentStationId])
+                {
+                    Console.WriteLine($"[FindConnection] Pomijam stację {currentStationId}, ponieważ currentArrival > earliestArrival.");
+                    continue;
+                }
+
+                // Pobieranie wszystkich wychodzących tras z aktualnej stacji
+                var outgoingRoutes = _routeRepo.GetRoutesFromStation(currentStationId);
+                Console.WriteLine($"[FindConnection] Stacja {currentStationId} ma {outgoingRoutes.Count()} wychodzących tras.");
 
                 foreach (var route in outgoingRoutes)
                 {
-                    // Szukamy najbliższego odjazdu w danym dniu; jeśli nie ma, to przechodzimy do dnia następnego.
-                    var nextDeparture = FindNextDeparture(route, currentTime);
-                    if (nextDeparture == null)
-                        continue; // Brak możliwego odjazdu
+                    Console.WriteLine($"[FindConnection] Sprawdzanie trasy: {route.StartStation.Name} -> {route.EndStation.Name}");
 
-                    // Obliczamy potencjalny czas przyjazdu na stację końcową tej trasy
-                    var arrivalTime = nextDeparture.Value.Add(route.Duration);
-                    var nextStation = route.EndStation;
+                    // Znajdowanie najbliższego odjazdu na trasie po czasie currentArrival
+                    var candidateDeparture = FindNextDeparture(route, currentArrival);
 
-                    // Aby ograniczyć liczbę odwiedzin tej samej stacji (co upraszcza BFS),
-                    // sprawdzamy, czy nie była już odwiedzona. 
-                    // Jeżeli nie, to dodajemy do kolejki.
-                    if (!visited.Contains(nextStation.Id))
+                    if (candidateDeparture == null)
                     {
-                        visited.Add(nextStation.Id);
+                        Console.WriteLine("[FindConnection] Brak kolejnych odjazdów na tej trasie.");
+                        continue;
+                    }
 
-                        // Tworzymy nową listę tras (powiększoną o bieżącą trasę).
-                        var newRoute = new List<Route>(currentRoute) { route };
+                    // Obliczenie potencjalnego czasu przybycia na końcową stację trasy
+                    DateTime potentialArrival = candidateDeparture.Value.Add(route.Duration);
+                    Console.WriteLine($"[FindConnection] Potencjalny czas przybycia na stację {route.EndStation.Name}: {potentialArrival}");
 
-                        // Wrzucamy do kolejki następną stację, nowy bieżący czas i nową ścieżkę tras.
-                        queue.Enqueue((nextStation, arrivalTime, newRoute));
+                    int endStationId = route.EndStation.Id;
+
+                    // Aktualizacja najwcześniejszego czasu przybycia i tras, jeśli znaleziono szybszą drogę
+                    if (potentialArrival < earliestArrival[endStationId])
+                    {
+                        earliestArrival[endStationId] = potentialArrival;
+                        previousStation[endStationId] = currentStationId;
+                        previousRoute[endStationId] = route;
+                        pq.Enqueue((endStationId, potentialArrival), potentialArrival);
+
+                        Console.WriteLine($"[FindConnection] Zaktualizowano earliestArrival dla stacji {endStationId} na {potentialArrival}");
                     }
                 }
             }
 
-            // Jeśli nie znaleźliśmy żadnej ścieżki do stacji docelowej, zwracamy pustą kolekcję
-            return Enumerable.Empty<Connection>();
+            Console.WriteLine("[FindConnection] Nie znaleziono żadnego połączenia.");
+            return null;
         }
 
         /// <summary>
-        /// Metoda wyszukująca najbliższy możliwy odjazd w TYM lub NASTĘPNYM dniu,
-        /// zakładając, że pociąg kursuje codziennie o tych samych godzinach.
+        /// Znajduje najbliższy odjazd (DateTime) na danej trasie 'route', 
+        /// biorąc pod uwagę 'currentArrival' (kiedy docieramy do stacji startowej danej trasy).
         /// </summary>
         private DateTime? FindNextDeparture(Route route, DateTime currentArrival)
         {
-            var timePart = currentArrival.TimeOfDay; // Wyciągamy TimeSpan z bieżącego czasu.
+            Console.WriteLine($"[FindNextDeparture] route={route.StartStation.Name}->{route.EndStation.Name}, currentArrival={currentArrival}");
+            var currentTimeOfDay = currentArrival.TimeOfDay;
 
-            // Sortujemy Timetables po DepartureTime (który teraz jest TimeSpan).
+            // Sortujemy timetables wg DepartureTime
             var sortedTimetables = route.Timetables
                 .OrderBy(t => t.DepartureTime)
                 .ToList();
 
-            // KROK 1: sprawdzamy, czy istnieje pociąg "dzisiaj":
-            var sameDayTimetable = sortedTimetables
-                .FirstOrDefault(t => t.DepartureTime >= timePart);
-
-            if (sameDayTimetable != null)
+            // 1) Znajdź najbliższy odjazd "dzisiaj" (czyli currentArrival.Date) >= currentTimeOfDay
+            var sameDay = sortedTimetables.FirstOrDefault(t => t.DepartureTime >= currentTimeOfDay);
+            if (sameDay != null)
             {
-                // Zwracamy pełny DateTime, łącząc datę z currentArrival oraz DepartureTime jako TimeSpan.
-                return currentArrival.Date + sameDayTimetable.DepartureTime;
+                var departureToday = currentArrival.Date + sameDay.DepartureTime;
+                if (departureToday >= currentArrival)
+                {
+                    Console.WriteLine($"[FindNextDeparture] Najbliższy odjazd dzisiaj: {departureToday}");
+                    return departureToday;
+                }
             }
 
-            // KROK 2: jeśli nie ma dzisiaj, bierzemy pierwszy kurs "jutro":
-            var nextDayTimetable = sortedTimetables.FirstOrDefault();
-            if (nextDayTimetable != null)
+            // 2) Jeśli brak "dzisiaj", bierzemy pierwszy odjazd "jutro"
+            var firstTomorrow = sortedTimetables.FirstOrDefault();
+            if (firstTomorrow != null)
             {
-                return currentArrival.Date.AddDays(1) + nextDayTimetable.DepartureTime;
+                var departureTomorrow = currentArrival.Date.AddDays(1) + firstTomorrow.DepartureTime;
+                Console.WriteLine($"[FindNextDeparture] Najbliższy odjazd jutro: {departureTomorrow}");
+                return departureTomorrow;
             }
 
-            // Jeśli brak wpisów, zwracamy null.
+            Console.WriteLine("[FindNextDeparture] Brak odjazdów na tej trasie.");
             return null;
         }
 
+        /// <summary>
+        /// Rekonstruuje pełne (możliwe wieloodcinkowe) połączenie na podstawie BFS-owych struktur:
+        /// previousStation i previousRoute.
+        /// </summary>
+        private Connection ReconstructConnection(
+            Dictionary<int, int> previousStation,
+            Dictionary<int, Route> previousRoute,
+            Dictionary<int, DateTime> earliestArrival,
+            int startId,
+            int endId)
+        {
+            Console.WriteLine("[ReconstructConnection] Rozpoczynam rekonstrukcję połączenia...");
+            var routes = new List<Route>();
+            int current = endId;
+            DateTime arrivalTime = earliestArrival[endId];
+
+            while (current != startId)
+            {
+                if (!previousStation.ContainsKey(current))
+                {
+                    Console.WriteLine($"[ReconstructConnection] Brak poprzedniej stacji dla {current}, przerwanie rekonstrukcji.");
+                    break;
+                }
+
+                var usedRoute = previousRoute[current];
+                int prevStationId = previousStation[current];
+                DateTime departureTime = arrivalTime - usedRoute.Duration;
+
+                // Tworzymy kopię route, aby nie nadpisywać oryginalnego obiektu
+                var newRoute = new Route
+                {
+                    Id = usedRoute.Id,
+                    StartStation = usedRoute.StartStation,
+                    EndStation = usedRoute.EndStation,
+                    Duration = usedRoute.Duration,
+                    DepartureDateTime = departureTime,
+                    ArrivalDateTime = arrivalTime,
+                    Timetables = usedRoute.Timetables.Select(tt => new Timetable
+                    {
+                        Id = tt.Id,
+                        RouteId = tt.RouteId,
+                        DepartureTime = tt.DepartureTime,
+                        ArrivalTime = tt.ArrivalTime
+                    }).ToList()
+                };
+
+                routes.Add(newRoute);
+                arrivalTime = departureTime;
+                current = prevStationId;
+            }
+
+            routes.Reverse();
+            Console.WriteLine($"[ReconstructConnection] Rekonstrukcja zakończona, liczba tras w połączeniu: {routes.Count}");
+
+            return new Connection
+            {
+                Routes = routes
+            };
+        }
     }
 }

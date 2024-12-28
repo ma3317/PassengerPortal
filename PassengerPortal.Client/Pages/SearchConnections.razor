@@ -6,148 +6,6 @@
 
 @if (stations == null && string.IsNullOrEmpty(errorMessage))
 {
-    <p><em>Ładowanie stacji...</em></p>
-}
-else if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger">@errorMessage</div>
-}
-else
-{
-    <EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="mb-3">
-            <label for="startStation" class="form-label">Stacja Początkowa</label>
-            <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
-                <option value="">-- Wybierz stację --</option>
-                @foreach (var station in stations)
-                {
-                    <option value="@station.Id">@station.Name (@station.City)</option>
-                }
-            </InputSelect>
-        </div>
-
-        <div class="mb-3">
-            <label for="endStation" class="form-label">Stacja Końcowa</label>
-            <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
-                <option value="">-- Wybierz stację --</option>
-                @foreach (var station in stations)
-                {
-                    <option value="@station.Id">@station.Name (@station.City)</option>
-                }
-            </InputSelect>
-        </div>
-
-        <div class="mb-3">
-            <label for="departureTime" class="form-label">Czas Odjazdu</label>
-            <InputDate id="departureTime" class="form-control" @bind-Value="searchModel.DepartureTime" />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Szukaj</button>
-    </EditForm>
-
-    @if (connections != null)
-    {
-        <h4 class="mt-4">Wyniki Wyszukiwania</h4>
-        @if (connections.Count == 0)
-        {
-            <p>Brak dostępnych połączeń.</p>
-        }
-        else
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Trasa</th>
-                        <th>Całkowity Czas</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var connection in connections)
-                    {
-                        <tr>
-                            <td>
-                                @foreach (var route in connection.Routes)
-                                {
-                                    <span>
-                                        @route.StartStation.Name -> @route.EndStation.Name
-                                        (@route.Duration.ToString(@"hh\:mm"))
-                                    </span><br />
-                                }
-                            </td>
-                            <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    }
-}
-
-@code {
-    private List<Station> stations;
-    private SearchModel searchModel = new SearchModel
-    {
-        DepartureTime = DateTime.Now
-    };
-    private List<Connection> connections;
-    private string errorMessage;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            Console.WriteLine("Pobieranie stacji...");
-            stations = await ApiService.GetStationsAsync();
-            if (stations != null && stations.Any())
-            {
-                Console.WriteLine($"Pierwsza stacja: {stations[0].Name}");
-            }
-            else
-            {
-                Console.WriteLine("Brak stacji do wyświetlenia.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Błąd podczas pobierania stacji: {ex.Message}");
-            errorMessage = "Wystąpił błąd podczas ładowania stacji. Spróbuj ponownie później.";
-        }
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        try
-        {
-            connections = await ApiService.SearchConnectionsAsync(
-                searchModel.StartStationId,
-                searchModel.EndStationId,
-                searchModel.DepartureTime);
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Błąd podczas wyszukiwania połączeń: {ex.Message}");
-            errorMessage = "Wystąpił błąd podczas wyszukiwania połączeń. Spróbuj ponownie później.";
-        }
-    }
-
-    public class SearchModel
-    {
-        public int StartStationId { get; set; }
-        public int EndStationId { get; set; }
-        public DateTime DepartureTime { get; set; }
-    }
-}*@
-@page "/search-connections"
-@using PassengerPortal.Shared.Models
-@inject PassengerPortal.Client.Services.ApiService ApiService
-
-<h3>Wyszukiwanie Połączeń</h3>
-
-@if (stations == null && string.IsNullOrEmpty(errorMessage))
-{
 <p><em>Ładowanie stacji...</em></p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
@@ -293,6 +151,7 @@ searchModel.StartStationId,
 searchModel.EndStationId,
 departureTime);
 
+
 // Log received connections
 if (connections != null)
 {
@@ -320,5 +179,199 @@ public int StartStationId { get; set; }
 public int EndStationId { get; set; }
 public string DepartureTimeString { get; set; } // Now as string
 }
+}*@
+
+@page "/search-connections"
+@using PassengerPortal.Shared.Models
+@inject PassengerPortal.Client.Services.ApiService ApiService
+
+<h3>Wyszukiwanie Połączeń</h3>
+
+@if (stations == null && string.IsNullOrEmpty(errorMessage))
+{
+    <p><em>Ładowanie stacji...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="startStation" class="form-label">Stacja Początkowa</label>
+            <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
+                <option value="">-- Wybierz stację --</option>
+                @foreach (var station in stations)
+                {
+                    <option value="@station.Id">@station.Name (@station.City)</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="endStation" class="form-label">Stacja Końcowa</label>
+            <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
+                <option value="">-- Wybierz stację --</option>
+                @foreach (var station in stations)
+                {
+                    <option value="@station.Id">@station.Name (@station.City)</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="departureTime" class="form-label">Czas Odjazdu</label>
+            <InputText id="departureTime" type="datetime-local" class="form-control" @bind-Value="searchModel.DepartureTimeString" />
+        </div>
+
+        @* Opcjonalnie: Pole do wprowadzania maksymalnej liczby wyników *@
+        <div class="mb-3">
+            <label for="maxResults" class="form-label">Maksymalna liczba wyników</label>
+            <InputNumber id="maxResults" class="form-control" @bind-Value="searchModel.MaxResults" min="1" max="10" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Szukaj</button>
+    </EditForm>
+
+    @if (connections != null)
+    {
+        <h4 class="mt-4">Wyniki Wyszukiwania</h4>
+        @if (connections.Count == 0)
+        {
+            <p>Brak dostępnych połączeń.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Trasa</th>
+                        <th>Czas Odjazdu</th>
+                        <th>Czas Przyjazdu</th>
+                        <th>Całkowity Czas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var connection in connections)
+                    {
+                        <tr>
+                            <td>
+                                @foreach (var route in connection.Routes)
+                                {
+                                    <span>
+                                        @route.StartStation.Name -> @route.EndStation.Name
+                                        (@route.Duration.ToString(@"hh\:mm"))
+                                    </span><br />
+                                }
+                            </td>
+                            <td>
+                                @(
+                                    connection.Routes.Any()
+                                    ? connection.Routes.Min(r => r.DepartureDateTime).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    : "--:--"
+                                )
+                            </td>
+                            <td>
+                                @(
+                                    connection.Routes.Any()
+                                    ? connection.Routes.Max(r => r.ArrivalDateTime).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    : "--:--"
+                                )
+                            </td>
+                            <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
 }
 
+@code {
+    private List<Station> stations;
+    private SearchModel searchModel = new SearchModel
+    {
+        DepartureTimeString = DateTime.Now.ToString("yyyy-MM-ddTHH:mm"),
+        MaxResults = 5 // Domyślnie 5
+    };
+    private List<Connection> connections;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("Pobieranie stacji...");
+            stations = await ApiService.GetStationsAsync();
+            if (stations != null && stations.Any())
+            {
+                Console.WriteLine($"Pierwsza stacja: {stations[0].Name}");
+            }
+            else
+            {
+                Console.WriteLine("Brak stacji do wyświetlenia.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Błąd podczas pobierania stacji: {ex.Message}");
+            errorMessage = "Wystąpił błąd podczas ładowania stacji. Spróbuj ponownie później.";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            // Parsowanie daty i czasu wprowadzonych przez użytkownika
+            if (!DateTime.TryParse(searchModel.DepartureTimeString, out var departureTime))
+            {
+                errorMessage = "Nieprawidłowy format daty i czasu.";
+                return;
+            }
+
+            Console.WriteLine($"Wyszukiwanie połączeń: startStationId={searchModel.StartStationId}, " +
+                              $"endStationId={searchModel.EndStationId}, departureTime={departureTime}, " +
+                              $"maxResults={searchModel.MaxResults}");
+
+            // Wywołanie metody z maxResults
+            connections = await ApiService.SearchConnectionsAsync(
+                searchModel.StartStationId,
+                searchModel.EndStationId,
+                departureTime,
+                searchModel.MaxResults);
+
+            // Logowanie znalezionych połączeń
+            if (connections != null)
+            {
+                Console.WriteLine($"Znaleziono {connections.Count} połączeń.");
+                foreach (var conn in connections)
+                {
+                    Console.WriteLine($"Connection ID: {conn.Id}, TotalDuration: {conn.TotalDuration}");
+                    foreach (var route in conn.Routes)
+                    {
+                        Console.WriteLine($"  Route ID: {route.Id}, Departure: {route.DepartureDateTime}, Arrival: {route.ArrivalDateTime}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Błąd podczas wyszukiwania połączeń: {ex.Message}");
+            errorMessage = "Wystąpił błąd podczas wyszukiwania połączeń. Spróbuj ponownie później.";
+        }
+    }
+
+    // Model używany w formularzu
+    public class SearchModel
+    {
+        public int StartStationId { get; set; }
+        public int EndStationId { get; set; }
+        public string DepartureTimeString { get; set; }
+        public int MaxResults { get; set; } = 5; // Domyślnie 5
+    }
+}

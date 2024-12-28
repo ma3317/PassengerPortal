@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Route = PassengerPortal.Shared.Models.Route;
-
+//Jasło → Gorlice
+// Gorlice → Tarnów
+// Tarnów → Kraków tak dodajemy trase Jasło-Gorlice-Tarnów-Kraków
+//strategia wyszukuje jedynie 1 najbardziej pasujące połączenie 
 namespace PassengerPortal.Server.Services
 {
     public class FastestConnectionStrategy : ISearchStrategy
@@ -20,7 +23,7 @@ namespace PassengerPortal.Server.Services
         }
 
         // Metoda wyszukująca najszybsze połączenie między stacjami `start` i `end`, rozpoczynające się po `departureTime`.
-        public IEnumerable<Connection> SearchConnections(Station start, Station end, DateTime departureTime)
+        public IEnumerable<Connection> SearchConnections(Station start, Station end, DateTime departureTime,int maxResults = 1)
         {
             Console.WriteLine($"Start wyszukiwania: start={start.Name}, end={end.Name}, departureTime={departureTime}");
 
@@ -147,32 +150,6 @@ namespace PassengerPortal.Server.Services
             Console.WriteLine("Brak odjazdów na tej trasie.");
             return null;
         }
-
-        // Rekonstrukcja znalezionego połączenia na podstawie słowników `previousStation` i `previousRoute`.
-        /*private Connection ReconstructConnection(Dictionary<int, int> previousStation, Dictionary<int, Route> previousRoute, int startId, int endId)
-        {
-            Console.WriteLine("Rozpoczynam rekonstrukcję połączenia...");
-            List<Route> routes = new List<Route>();
-            int current = endId;
-
-            while (current != startId)
-            {
-                if (!previousStation.ContainsKey(current))
-                {
-                    Console.WriteLine($"Nie można znaleźć poprzedniej stacji dla {current}");
-                    break;
-                }
-
-                var route = previousRoute[current];
-                Console.WriteLine($"Dodaję trasę: {route.StartStation.Name} -> {route.EndStation.Name}");
-                routes.Add(route);
-                current = previousStation[current];
-            }
-
-            routes.Reverse();
-            Console.WriteLine("Rekonstrukcja zakończona.");
-            return new Connection { Routes = routes };
-        }*/
         private Connection ReconstructConnection(Dictionary<int, int> previousStation, Dictionary<int, Route> previousRoute, Dictionary<int, DateTime> earliestArrival, int startId, int endId)
         {
             Console.WriteLine("Rozpoczynam rekonstrukcję połączenia...");

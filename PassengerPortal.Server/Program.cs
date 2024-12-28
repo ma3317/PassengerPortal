@@ -1,73 +1,3 @@
-/*using Microsoft.EntityFrameworkCore;
-using PassengerPortal.Server.Data;
-using PassengerPortal.Shared.Models;
-using PassengerPortal.Shared.Interfaces;
-using PassengerPortal.Server.Repositories;
-using PassengerPortal.Server.Services;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
-
-// Dodajemy kontekst bazy danych
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-//---
-
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("https://localhost:7148") // Adres frontendu
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
-
-
-var app = builder.Build();
-//app.UseHttpsRedirection();//////
-
-
-app.UseCors("AllowFrontend");
-
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
-}
-
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.MapRazorPages();
-app.MapControllers();
-
-
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    if (!context.Stations.Any())
-    {
-        context.Stations.AddRange(
-            new Station { Name = "Jaslo", Location = "Jaslo" }
-        );
-        context.SaveChanges();
-    }
-}
-
-
-app.Run();*/
 
 using System.Text.Json.Serialization;
 using Route = PassengerPortal.Shared.Models.Route;
@@ -105,7 +35,7 @@ builder.Services.AddScoped<IStationRepository, StationRepository>();
 builder.Services.AddScoped<IRouteRepository, RouteRepository>();
 
 // Rejestracja strategii wyszukiwania połączeń
-builder.Services.AddScoped<ISearchStrategy, FastestConnectionStrategy>();
+builder.Services.AddScoped<ISearchStrategy, FewestConnectionStrategy>();
 
 // Konfiguracja CORS
 builder.Services.AddCors(options =>
