@@ -16,6 +16,7 @@ namespace PassengerPortal.Server.Data
         public DbSet<Timetable> Timetables { get; set; }
         public DbSet<Train> Trains { get; set; }
         public DbSet<Connection> Connections { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }//new
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,35 @@ namespace PassengerPortal.Server.Data
                 .WithMany(r => r.Timetables)
                 .HasForeignKey(t => t.RouteId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            
+            //new
+            // Relacja wiele-do-wielu między Ticket a Route
+            modelBuilder.Entity<Ticket>()
+                .HasMany(t => t.Routes)
+                .WithMany()
+                .UsingEntity<Dictionary<string, object>>(
+                    "TicketRoute",
+                    tr => tr.HasOne<Route>().WithMany().HasForeignKey("RouteId"),
+                    tr => tr.HasOne<Ticket>().WithMany().HasForeignKey("TicketId"),
+                    tr =>
+                    {
+                        tr.HasKey("TicketId", "RouteId");
+                        tr.ToTable("TicketRoutes");
+                    });
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.StartStation)
+                .WithMany()
+                .HasForeignKey(t => t.StartStationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.EndStation)
+                .WithMany()
+                .HasForeignKey(t => t.EndStationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //new
         }
     }
 }

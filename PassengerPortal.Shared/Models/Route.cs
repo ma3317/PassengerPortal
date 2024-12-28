@@ -17,4 +17,11 @@ public class Route
 
     [NotMapped]
     public DateTime ArrivalDateTime { get; set; }
+    
+    
+    
+    // Nowe właściwości
+    public TrainType TrainType { get; set; }
+    public int AvailableSeats { get; set; }
+    public decimal Price { get; set; }
 }

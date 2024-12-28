@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PassengerPortal.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ffa7e8a7969e959b2e96b8e83035fce909bf59f5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3a57a7d6285362b88285d90b875d4fb396c2aa1a")]
 [assembly: System.Reflection.AssemblyProductAttribute("PassengerPortal.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PassengerPortal.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

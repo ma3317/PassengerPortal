@@ -1,186 +1,4 @@
-@*@page "/search-connections"
-@using PassengerPortal.Shared.Models
-@inject PassengerPortal.Client.Services.ApiService ApiService
-
-<h3>Wyszukiwanie Połączeń</h3>
-
-@if (stations == null && string.IsNullOrEmpty(errorMessage))
-{
-<p><em>Ładowanie stacji...</em></p>
-}
-else if (!string.IsNullOrEmpty(errorMessage))
-{
-<div class="alert alert-danger">@errorMessage</div>
-}
-else
-{
-<EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="mb-3">
-        <label for="startStation" class="form-label">Stacja Początkowa</label>
-        <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
-            <option value="">-- Wybierz stację --</option>
-            @foreach (var station in stations)
-            {
-            <option value="@station.Id">@station.Name (@station.City)</option>
-            }
-        </InputSelect>
-    </div>
-
-    <div class="mb-3">
-        <label for="endStation" class="form-label">Stacja Końcowa</label>
-        <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
-            <option value="">-- Wybierz stację --</option>
-            @foreach (var station in stations)
-            {
-            <option value="@station.Id">@station.Name (@station.City)</option>
-            }
-        </InputSelect>
-    </div>
-
-    <div class="mb-3">
-        <label for="departureTime" class="form-label">Czas Odjazdu</label>
-        <InputText id="departureTime" type="datetime-local" class="form-control" @bind-Value="searchModel.DepartureTimeString" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Szukaj</button>
-</EditForm>
-
-@if (connections != null)
-{
-<h4 class="mt-4">Wyniki Wyszukiwania</h4>
-@if (connections.Count == 0)
-{
-<p>Brak dostępnych połączeń.</p>
-}
-else
-{
-<table class="table">
-    <thead>
-    <tr>
-        <th>Trasa</th>
-        <th>Czas Odjazdu</th>
-        <th>Czas Przyjazdu</th>
-        <th>Całkowity Czas</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var connection in connections)
-    {
-    <tr>
-        <td>
-            @foreach (var route in connection.Routes)
-            {
-            <span>
-                                        @route.StartStation.Name -> @route.EndStation.Name
-                (@route.Duration.ToString(@"hh\:mm"))
-                                    </span><br />
-            }
-        </td>
-        <td>
-            @(
-            connection.Routes.Any()
-            ? connection.Routes.Min(r => r.DepartureDateTime).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-            : "--:--"
-            )
-        </td>
-        <td>
-            @(
-            connection.Routes.Any()
-            ? connection.Routes.Max(r => r.ArrivalDateTime).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-            : "--:--"
-            )
-        </td>
-        <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
-    </tr>
-    }
-    </tbody>
-</table>
-}
-}
-}
-
-@code {
-private List<Station> stations;
-private SearchModel searchModel = new SearchModel
-{
-DepartureTimeString = DateTime.Now.ToString("yyyy-MM-ddTHH:mm")
-};
-private List<Connection> connections;
-private string errorMessage;
-
-protected override async Task OnInitializedAsync()
-{
-try
-{
-Console.WriteLine("Pobieranie stacji...");
-stations = await ApiService.GetStationsAsync();
-if (stations != null && stations.Any())
-{
-Console.WriteLine($"Pierwsza stacja: {stations[0].Name}");
-}
-else
-{
-Console.WriteLine("Brak stacji do wyświetlenia.");
-}
-}
-catch (Exception ex)
-{
-Console.Error.WriteLine($"Błąd podczas pobierania stacji: {ex.Message}");
-errorMessage = "Wystąpił błąd podczas ładowania stacji. Spróbuj ponownie później.";
-}
-}
-
-private async Task HandleValidSubmit()
-{
-try
-{
-// Parse DepartureTimeString to DateTime
-if (!DateTime.TryParse(searchModel.DepartureTimeString, out var departureTime))
-{
-errorMessage = "Nieprawidłowy format daty i czasu.";
-return;
-}
-
-Console.WriteLine($"Wyszukiwanie połączeń: startStationId={searchModel.StartStationId}, endStationId={searchModel.EndStationId}, departureTime={departureTime}");
-
-connections = await ApiService.SearchConnectionsAsync(
-searchModel.StartStationId,
-searchModel.EndStationId,
-departureTime);
-
-
-// Log received connections
-if (connections != null)
-{
-Console.WriteLine($"Znaleziono {connections.Count} połączeń.");
-foreach (var conn in connections)
-{
-Console.WriteLine($"Connection ID: {conn.Id}, TotalDuration: {conn.TotalDuration}");
-foreach (var route in conn.Routes)
-{
-Console.WriteLine($"  Route ID: {route.Id}, Departure: {route.DepartureDateTime}, Arrival: {route.ArrivalDateTime}");
-}
-}
-}
-}
-catch (Exception ex)
-{
-Console.Error.WriteLine($"Błąd podczas wyszukiwania połączeń: {ex.Message}");
-errorMessage = "Wystąpił błąd podczas wyszukiwania połączeń. Spróbuj ponownie później.";
-}
-}
-
-public class SearchModel
-{
-public int StartStationId { get; set; }
-public int EndStationId { get; set; }
-public string DepartureTimeString { get; set; } // Now as string
-}
-}*@
-
+@*
 @page "/search-connections"
 @using PassengerPortal.Shared.Models
 @inject PassengerPortal.Client.Services.ApiService ApiService
@@ -227,8 +45,7 @@ else
             <label for="departureTime" class="form-label">Czas Odjazdu</label>
             <InputText id="departureTime" type="datetime-local" class="form-control" @bind-Value="searchModel.DepartureTimeString" />
         </div>
-
-        @* Opcjonalnie: Pole do wprowadzania maksymalnej liczby wyników *@
+        
         <div class="mb-3">
             <label for="maxResults" class="form-label">Maksymalna liczba wyników</label>
             <InputNumber id="maxResults" class="form-control" @bind-Value="searchModel.MaxResults" min="1" max="10" />
@@ -373,5 +190,280 @@ else
         public int EndStationId { get; set; }
         public string DepartureTimeString { get; set; }
         public int MaxResults { get; set; } = 5; // Domyślnie 5
+    }
+}
+*@
+@page "/search-connections"
+@using PassengerPortal.Shared.Models
+@inject PassengerPortal.Client.Services.ApiService ApiService
+
+<h3>Wyszukiwanie Połączeń</h3>
+
+@if (stations == null && string.IsNullOrEmpty(errorMessage))
+{
+    <p><em>Ładowanie stacji...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <EditForm Model="searchModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="startStation" class="form-label">Stacja Początkowa</label>
+            <InputSelect id="startStation" class="form-select" @bind-Value="searchModel.StartStationId">
+                <option value="">-- Wybierz stację --</option>
+                @foreach (var station in stations)
+                {
+                    <option value="@station.Id">@station.Name (@station.City)</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="endStation" class="form-label">Stacja Końcowa</label>
+            <InputSelect id="endStation" class="form-select" @bind-Value="searchModel.EndStationId">
+                <option value="">-- Wybierz stację --</option>
+                @foreach (var station in stations)
+                {
+                    <option value="@station.Id">@station.Name (@station.City)</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="departureTime" class="form-label">Czas Odjazdu</label>
+            <InputText id="departureTime" type="datetime-local" class="form-control" @bind-Value="searchModel.DepartureTimeString" />
+        </div>
+
+        @* Opcjonalnie: Pole do wprowadzania maksymalnej liczby wyników *@
+        <div class="mb-3">
+            <label for="maxResults" class="form-label">Maksymalna liczba wyników</label>
+            <InputNumber id="maxResults" class="form-control" @bind-Value="searchModel.MaxResults" min="1" max="10" />
+        </div>
+
+        @* Nowe filtry *@
+        <div class="mb-3">
+            <label for="maximumPrice" class="form-label">Maksymalna Cena (PLN)</label>
+            <InputNumber id="maximumPrice" class="form-control" @bind-Value="searchModel.MaximumPrice" step="0.01" min="0" />
+        </div>
+
+        <div class="mb-3">
+            <label for="trainType" class="form-label">Typ Pociągu</label>
+            <InputSelect id="trainType" class="form-select" @bind-Value="searchModel.SelectedTrainType">
+                <option value="">-- Dowolny --</option>
+                @foreach (var type in Enum.GetValues(typeof(TrainType)).Cast<TrainType>())
+                {
+                    <option value="@type">@type</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="minimumSeats" class="form-label">Minimalna Liczba Miejsc</label>
+            <InputNumber id="minimumSeats" class="form-control" @bind-Value="searchModel.MinimumSeats" min="1" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Szukaj</button>
+    </EditForm>
+
+    @if (connections != null)
+    {
+        <h4 class="mt-4">Wyniki Wyszukiwania</h4>
+        @if (connections.Count == 0)
+        {
+            <p>Brak dostępnych połączeń.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Trasa</th>
+                        <th>Czas Odjazdu</th>
+                        <th>Czas Przyjazdu</th>
+                        <th>Całkowity Czas</th>
+                        <th>Typ Pociągu</th>
+                        <th>Cena</th>
+                        <th>Akcja</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var connection in connections)
+                    {
+                        <tr>
+                            <td>
+                                @foreach (var route in connection.Routes)
+                                {
+                                    <span>
+                                        @route.StartStation.Name -> @route.EndStation.Name
+                                        (@route.Duration.ToString(@"hh\:mm"))
+                                    </span><br />
+                                }
+                            </td>
+                            <td>
+                                @(
+                                    connection.Routes.Any()
+                                    ? connection.Routes.Min(r => r.DepartureDateTime).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    : "--:--"
+                                )
+                            </td>
+                            <td>
+                                @(
+                                    connection.Routes.Any()
+                                    ? connection.Routes.Max(r => r.ArrivalDateTime).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    : "--:--"
+                                )
+                            </td>
+                            <td>@connection.TotalDuration.ToString(@"hh\:mm")</td>
+                            <td>@connection.Routes.First().TrainType</td>
+                            <td>@connection.TotalPrice.ToString("C")</td>
+                            <td>
+                                <button class="btn btn-primary" @onclick="() => PurchaseTicket(connection)">Kup Bilet</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+}
+
+@code {
+    private List<Station> stations;
+    private SearchModel searchModel = new SearchModel
+    {
+        DepartureTimeString = DateTime.Now.ToString("yyyy-MM-ddTHH:mm"),
+        MaxResults = 5, // Domyślnie 5
+        MaximumPrice = null,
+        SelectedTrainType = null,
+        MinimumSeats = null
+    };
+    private List<Connection> connections;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("Pobieranie stacji...");
+            stations = await ApiService.GetStationsAsync();
+            if (stations != null && stations.Any())
+            {
+                Console.WriteLine($"Pierwsza stacja: {stations[0].Name}");
+            }
+            else
+            {
+                Console.WriteLine("Brak stacji do wyświetlenia.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Błąd podczas pobierania stacji: {ex.Message}");
+            errorMessage = "Wystąpił błąd podczas ładowania stacji. Spróbuj ponownie później.";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            // Parsowanie daty i czasu wprowadzonych przez użytkownika
+            if (!DateTime.TryParse(searchModel.DepartureTimeString, out var departureTime))
+            {
+                errorMessage = "Nieprawidłowy format daty i czasu.";
+                return;
+            }
+
+            Console.WriteLine($"Wyszukiwanie połączeń: startStationId={searchModel.StartStationId}, " +
+                              $"endStationId={searchModel.EndStationId}, departureTime={departureTime}, " +
+                              $"maxResults={searchModel.MaxResults}, maximumPrice={searchModel.MaximumPrice}, " +
+                              $"trainType={searchModel.SelectedTrainType}, minimumSeats={searchModel.MinimumSeats}");
+
+            // Wywołanie metody z maxResults i filtrami
+            connections = await ApiService.SearchConnectionsAsync(
+                searchModel.StartStationId,
+                searchModel.EndStationId,
+                departureTime,
+                searchModel.MaxResults,
+                searchModel.MaximumPrice,
+                searchModel.SelectedTrainType,
+                searchModel.MinimumSeats
+            );
+
+            // Logowanie znalezionych połączeń
+            if (connections != null)
+            {
+                Console.WriteLine($"Znaleziono {connections.Count} połączeń.");
+                foreach (var conn in connections)
+                {
+                    Console.WriteLine($"Connection ID: {conn.Id}, TotalDuration: {conn.TotalDuration}");
+                    foreach (var route in conn.Routes)
+                    {
+                        Console.WriteLine($"  Route ID: {route.Id}, Departure: {route.DepartureDateTime}, Arrival: {route.ArrivalDateTime}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Błąd podczas wyszukiwania połączeń: {ex.Message}");
+            errorMessage = "Wystąpił błąd podczas wyszukiwania połączeń. Spróbuj ponownie później.";
+        }
+    }
+
+    private async Task PurchaseTicket(Connection connection)
+    {
+        var request = new PurchaseTicketRequest
+        {
+            RouteIds = connection.Routes.Select(r => r.Id).ToList(),
+            DepartureDateTime = connection.Routes.First().DepartureDateTime,
+            BuyerId = "currentUserId" // Zamień na identyfikator aktualnego użytkownika
+        };
+
+        var response = await ApiService.PurchaseTicketAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            // Informuj użytkownika o sukcesie, np. wyświetl powiadomienie
+            await HandleValidSubmit(); // Odśwież listę połączeń
+            // Możesz dodać powiadomienie sukcesu tutaj
+        }
+        else
+        {
+            // Obsłuż błędy, np. wyświetl komunikat
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+            // Wyświetl `error.Message` użytkownikowi
+            errorMessage = error?.Message ?? "Nieznany błąd podczas zakupu biletu.";
+        }
+    }
+
+    // Model używany w formularzu
+    public class SearchModel
+    {
+        public int StartStationId { get; set; }
+        public int EndStationId { get; set; }
+        public string DepartureTimeString { get; set; }
+        public int MaxResults { get; set; } = 5; // Domyślnie 5
+
+        // Nowe filtry
+        public decimal? MaximumPrice { get; set; }
+        public TrainType? SelectedTrainType { get; set; }
+        public int? MinimumSeats { get; set; }
+    }
+
+    public class PurchaseTicketRequest
+    {
+        public List<int> RouteIds { get; set; }
+        public DateTime DepartureDateTime { get; set; }
+        public string BuyerId { get; set; }
+    }
+
+    public class ErrorResponse
+    {
+        public string Message { get; set; }
     }
 }

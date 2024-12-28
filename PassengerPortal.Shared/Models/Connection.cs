@@ -2,7 +2,7 @@ namespace PassengerPortal.Shared.Models;
 
 public class Connection
 {
-    public int Id { get; set; } // Klucz główny
+    public int Id { get; set; } 
 
     public List<Route> Routes { get; set; } = new List<Route>();
     public TimeSpan TotalDuration => CalculateTotalDuration();
@@ -17,4 +17,7 @@ public class Connection
         }
         return total;
     }
+    //new
+    public decimal TotalPrice => Routes.Sum(route => route.Price);
+    //new
 }

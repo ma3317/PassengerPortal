@@ -43,6 +43,9 @@ namespace PassengerPortal.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AvailableSeats")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("ConnectionId")
                         .HasColumnType("integer");
 
@@ -52,10 +55,16 @@ namespace PassengerPortal.Server.Migrations
                     b.Property<int>("EndStationId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
                     b.Property<int>("StartStationId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("TrainId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TrainType")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -90,6 +99,42 @@ namespace PassengerPortal.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Stations");
+                });
+
+            modelBuilder.Entity("PassengerPortal.Shared.Models.Ticket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BuyerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DepartureDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EndStationId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("PurchaseTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("StartStationId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EndStationId");
+
+                    b.HasIndex("StartStationId");
+
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("PassengerPortal.Shared.Models.Timetable", b =>
@@ -133,6 +178,21 @@ namespace PassengerPortal.Server.Migrations
                     b.ToTable("Trains");
                 });
 
+            modelBuilder.Entity("TicketRoute", b =>
+                {
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RouteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TicketId", "RouteId");
+
+                    b.HasIndex("RouteId");
+
+                    b.ToTable("TicketRoutes", (string)null);
+                });
+
             modelBuilder.Entity("PassengerPortal.Shared.Models.Route", b =>
                 {
                     b.HasOne("PassengerPortal.Shared.Models.Connection", null)
@@ -160,6 +220,25 @@ namespace PassengerPortal.Server.Migrations
                     b.Navigation("StartStation");
                 });
 
+            modelBuilder.Entity("PassengerPortal.Shared.Models.Ticket", b =>
+                {
+                    b.HasOne("PassengerPortal.Shared.Models.Station", "EndStation")
+                        .WithMany()
+                        .HasForeignKey("EndStationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PassengerPortal.Shared.Models.Station", "StartStation")
+                        .WithMany()
+                        .HasForeignKey("StartStationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EndStation");
+
+                    b.Navigation("StartStation");
+                });
+
             modelBuilder.Entity("PassengerPortal.Shared.Models.Timetable", b =>
                 {
                     b.HasOne("PassengerPortal.Shared.Models.Route", "Route")
@@ -169,6 +248,21 @@ namespace PassengerPortal.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Route");
+                });
+
+            modelBuilder.Entity("TicketRoute", b =>
+                {
+                    b.HasOne("PassengerPortal.Shared.Models.Route", null)
+                        .WithMany()
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PassengerPortal.Shared.Models.Ticket", null)
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PassengerPortal.Shared.Models.Connection", b =>

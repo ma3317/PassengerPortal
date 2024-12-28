@@ -1,21 +1,26 @@
-namespace PassengerPortal.Shared.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-public class Ticket
+namespace PassengerPortal.Shared.Models
 {
-    public int Id { get; set; }
-    public Passenger Passenger { get; set; }
-    public Connection Connection { get; set; }
-    public decimal BasePrice { get; set; }
-    public decimal FinalPrice { get; set; }
-    public DateTime PurchaseTime { get; set; }
-    public DateTime TravelDate { get; set; }
-    
-    protected ITicketRenderer Renderer;
-
-    protected Ticket(ITicketRenderer renderer)
+    public class Ticket
     {
-        Renderer = renderer;
-    }
+        public int Id { get; set; }
+        public DateTime DepartureDateTime { get; set; }
+        // Relacja wiele-do-wielu z Route
+        public ICollection<Route> Routes { get; set; } = new List<Route>();
+        public Station StartStation { get; set; }
+        public int StartStationId { get; set; }
+        public Station EndStation { get; set; }
+        public int EndStationId { get; set; }
+        public DateTime PurchaseTime { get; set; }
+        public decimal Price { get; set; }
 
-    //public abstract void Generate();
+        [Required]
+        public string BuyerId { get; set; } // Zakładając, że masz system użytkowników
+    }
 }
+
+

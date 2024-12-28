@@ -20,8 +20,13 @@ namespace PassengerPortal.Shared.Interfaces
 {
     public interface ISearchStrategy
     {
-        IEnumerable<Connection> SearchConnections(Station start, Station end, DateTime departureTime, int maxResults = 5);
-    }
+        IEnumerable<Connection> SearchConnections(
+            Station start,
+            Station end,
+            DateTime departureTime,
+            int maxResults = 5,
+            IConnectionFilter filter = null // Opcjonalny filtr
+        );}
 }
 
 

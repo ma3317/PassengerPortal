@@ -33,9 +33,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Rejestracja repozytoriów
 builder.Services.AddScoped<IStationRepository, StationRepository>();
 builder.Services.AddScoped<IRouteRepository, RouteRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();//new
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 // Rejestracja strategii wyszukiwania połączeń
-builder.Services.AddScoped<ISearchStrategy, FewestConnectionStrategy>();
+builder.Services.AddScoped<ISearchStrategy, FewestTransfersStrategy>();
 
 // Konfiguracja CORS
 builder.Services.AddCors(options =>
@@ -81,8 +83,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Inicjalizacja bazy danych
-using (var scope = app.Services.CreateScope())
+// Inicjalizacja bazy danych stare
+/*using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
@@ -165,6 +167,101 @@ using (var scope = app.Services.CreateScope())
 }
 
 
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Wystąpił błąd podczas inicjalizacji bazy danych.");
+        throw;
+    }
+}*/
+// Inicjalizacja bazy danych
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        logger.LogInformation("Rozpoczynam migrację bazy danych...");
+        context.Database.Migrate();
+
+        if (!context.Stations.Any())
+        {
+            logger.LogInformation("Inicjalizowanie danych dla stacji...");
+            context.Stations.AddRange(
+                new Station { Name = "Jaslo", City = "Jaslo" },
+                new Station { Name = "Krakow", City = "Krakow" },
+                new Station { Name = "Warszawa", City = "Warszawa" }
+            );
+            context.SaveChanges();
+            logger.LogInformation("Stacje zostały zainicjalizowane.");
+        }
+
+        if (!context.Routes.Any())
+        {
+            logger.LogInformation("Inicjalizowanie danych dla tras...");
+            var stations = context.Stations.ToList();
+
+            var jasloStation = stations.FirstOrDefault(s => s.Name == "Jaslo");
+            var krakowStation = stations.FirstOrDefault(s => s.Name == "Krakow");
+            var warszawaStation = stations.FirstOrDefault(s => s.Name == "Warszawa");
+
+            if (jasloStation == null || krakowStation == null || warszawaStation == null)
+            {
+                logger.LogWarning("Nie można znaleźć wymaganych stacji: 'Jaslo', 'Krakow', 'Warszawa'.");
+            }
+            else
+            {
+                context.Routes.AddRange(
+                    new Route
+                    {
+                        StartStation = jasloStation,
+                        EndStation = krakowStation,
+                        Duration = TimeSpan.FromHours(3),
+                        TrainType = TrainType.InterCity,    // Nowa właściwość
+                        Price = 50.00m,                      // Nowa właściwość
+                        AvailableSeats = 100,               // Nowa właściwość
+                        Timetables = new List<Timetable>
+                        {
+                            new Timetable
+                            {
+                                DepartureTime = TimeSpan.FromHours(6), // 6:00 rano
+                                ArrivalTime = TimeSpan.FromHours(9)   // 9:00 rano
+                            },
+                            new Timetable
+                            {
+                                DepartureTime = TimeSpan.FromHours(15), // 15:00
+                                ArrivalTime = TimeSpan.FromHours(18)   // 18:00
+                            }
+                        }
+                    },
+                    new Route
+                    {
+                        StartStation = krakowStation,
+                        EndStation = warszawaStation,
+                        Duration = TimeSpan.FromHours(2.5),
+                        TrainType = TrainType.InterCity,    // Nowa właściwość
+                        Price = 70.00m,                      // Nowa właściwość
+                        AvailableSeats = 100,               // Nowa właściwość
+                        Timetables = new List<Timetable>
+                        {
+                            new Timetable
+                            {
+                                DepartureTime = TimeSpan.FromHours(10), // 10:00 rano
+                                ArrivalTime = TimeSpan.FromHours(12.5) // 12:30
+                            },
+                            new Timetable
+                            {
+                                DepartureTime = TimeSpan.FromHours(20), // 20:00
+                                ArrivalTime = TimeSpan.FromHours(22.5) // 22:30
+                            }
+                        }
+                    }
+                );
+                context.SaveChanges();
+                logger.LogInformation("Trasy zostały zainicjalizowane.");
+            }
+        }
     }
     catch (Exception ex)
     {
