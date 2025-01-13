@@ -1,17 +1,47 @@
 ﻿@page "/"
+@using PassengerPortal.Shared.Models
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
 <div class="main-container">
     <div class="delay-card">
-        <h2>Delays</h2>
-        <p>Check for train delays</p>
+        <h2>Opóźnienia</h2>
+        <p><a href="/add-delay">Kliknij, aby dodać nowe opóźnienia</a></p>
+        
+        <h3>Aktualne opóźnienia pociągów</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Numer pociągu</th>
+                    <th>Relacja</th>
+                    <th>Godzina odjazdu</th>
+                    <th>Opóźnienie (min)</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Delays.Any())
+                {
+                    foreach (var delay in Delays)
+                    {
+                        <tr>
+                            <td>@delay.TrainNumber</td>
+                            <td>@delay.Route</td>
+                            <td>@delay.DepartureTime</td>
+                            <td>@delay.DelayInMinutes</td>
+                            
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
     </div>
     <div class="right-section">
         <div class="about-card">
-            <h2>About</h2>
-            <p>Welcome to Passenger Portal – your travel companion and your reliable tool for planning train journeys, checking rankings,
-                and staying updated on travel information!</p>
+            <h2>O aplikacji</h2>
+            <p>Witaj na Passenger Portal – kompanie twojej podróży i wiarygodnym narzędziu do planowania podróży pociągiem, serduszkowania twoich ulubionych lokomotyw,
+                i pozostawania na bieżąco z każdym opóźnieniem!</p>
         </div>
         <p></p>
         <div class="image-card">
@@ -19,3 +49,19 @@
         </div>
     </div>
 </div>
+
+@code {
+    private List<Delay> Delays = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Delays = await Http.GetFromJsonAsync<List<Delay>>("api/Delays");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching delays: {ex.Message}");
+        }
+    }
+}

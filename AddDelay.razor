@@ -1,0 +1,94 @@
+@page "/add-delay"
+@using PassengerPortal.Shared.Models
+@inject HttpClient Http
+<PageTitle>Add Delay</PageTitle>
+
+<h3>Dodaj opóźnienie pociągu</h3>
+
+<EditForm Model="NewDelay" OnValidSubmit="SubmitDelay">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Numer pociągu:</label>
+        <InputText @bind-Value="NewDelay.TrainNumber" />
+    </div>
+    <div>
+        <label>Relacja:</label>
+        <InputText @bind-Value="NewDelay.Route" />
+    </div>
+    <div>
+        <label>Godzina odjazdu:</label>
+        <input type="datetime-local" @bind="NewDelay.DepartureTime" />
+    </div>
+    <div>
+        <label>Opóźnienie (min):</label>
+        <InputNumber @bind-Value="NewDelay.DelayInMinutes" />
+    </div>
+    <button type="submit">Dodaj</button>
+</EditForm>
+
+<h3>Podgląd opóźnień</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Numer pociągu</th>
+            <th>Relacja</th>
+            <th>Godzina odjazdu</th>
+            <th>Opóźnienie</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var delay in Delays)
+        {
+            <tr>
+                <td>@delay.TrainNumber</td>
+                <td>@delay.Route</td>
+                <td>@delay.DepartureTime</td>
+                <td>@delay.DelayInMinutes</td>
+                <td>
+                    <button @onclick="() => DeleteDelay(delay.Id)">Usuń</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Delay> Delays = new();
+    private Delay NewDelay = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Delays = await Http.GetFromJsonAsync<List<Delay>>("api/Delays");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd podczas pobierania opóźnień: {ex.Message}");
+        }
+    }
+
+    private async Task SubmitDelay()
+    {
+        var response = await Http.PostAsJsonAsync("api/Delays", NewDelay);
+        NewDelay.DepartureTime = DateTime.SpecifyKind(NewDelay.DepartureTime, DateTimeKind.Utc);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var createdDelay = await response.Content.ReadFromJsonAsync<Delay>();
+            Delays.Add(createdDelay); // Dodanie nowego elementu do tabeli
+            NewDelay = new Delay(); // Wyczyszczenie formularza
+        }
+    }
+
+    private async Task DeleteDelay(int id)
+    {
+        var response = await Http.DeleteAsync($"api/Delays/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            Delays.RemoveAll(d => d.Id == id); // Usunięcie elementu z listy
+        }
+    }
+}
